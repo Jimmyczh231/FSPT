@@ -39,7 +39,7 @@ def write_json(obj, fpath):
 
 def save_checkpoint(state, is_best=False, fpath='checkpoint.pth.tar'):
     if len(os.path.dirname(fpath)) != 0:
-        mkdir_if_missing(os.path.dirname(fpath))  # 如果文件路径的目录部分长度不为0，则创建目录
+        mkdir_if_missing(os.path.dirname(fpath))
 
     if is_best:
-        torch.save(state, os.path.join(os.path.dirname(fpath), 'best_model.pth.tar'))  # 如果是最佳模型，则保存模型状态到指定路径
+        torch.save(state, os.path.join(os.path.dirname(fpath), 'best_model.pth.tar'))

@@ -12,14 +12,14 @@ class CfgNode(_CfgNode):
     support manifold path
     """
     @classmethod
-    def _open_cfg(cls, filename):  # 类方法，用于打开配置文件
-        return PathManager.open(filename, "r")  # 使用PathManager以只读模式打开文件
+    def _open_cfg(cls, filename):
+        return PathManager.open(filename, "r")
 
-    def dump(self, *args, **kwargs):  # 重写dump方法
+    def dump(self, *args, **kwargs):
         """
         Returns:
             str: a yaml string representation of the config
         """
         # to make it show up in docs
-        return super().dump(*args, **kwargs)  # 调用父类的dump方法并返回
+        return super().dump(*args, **kwargs)
 

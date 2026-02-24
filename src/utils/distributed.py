@@ -8,11 +8,11 @@ _LOCAL_PROCESS_GROUP = None
 
 
 def get_world_size() -> int:
-    if not dist.is_available():  # 如果分布式包不可用
-        return 1  # 返回默认的世界大小为1
-    if not dist.is_initialized():  # 如果分布式包未初始化
-        return 1  # 返回默认的世界大小为1
-    return dist.get_world_size()  # 返回当前的世界大小
+    if not dist.is_available():
+        return 1
+    if not dist.is_initialized():
+        return 1
+    return dist.get_world_size()
 
 
 
@@ -28,10 +28,10 @@ def is_master_process(num_gpus=8):
     """
     Determines if the current process is the master process.
     """
-    if torch.distributed.is_initialized():  # 如果分布式进程已初始化
-        return dist.get_rank() % num_gpus == 0  # 判断当前进程是否为主进程，主进程的rank为num_gpus的倍数
-    else:  # 如果分布式进程未初始化
-        return True  # 默认当前进程为主进程
+    if torch.distributed.is_initialized():
+        return dist.get_rank() % num_gpus == 0
+    else:
+        return True
 
 
 

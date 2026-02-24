@@ -3,7 +3,7 @@ NUM_SHARDS: 1
 OUTPUT_DIR: ""
 RUN_N_TIMES: 1
 MODEL:
-  TRANSFER_TYPE: "end2end"
+  TRANSFER_TYPE: "prompt"
   TYPE: "vit"
   LINEAR:
     MLP_SIZES: []

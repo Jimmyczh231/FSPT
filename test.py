@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import print_function
 from __future__ import division
 
@@ -12,7 +13,6 @@ import torch.backends.cudnn as cudnn
 
 from tqdm import tqdm
 
-
 from data_manager import DataManager
 from utils import AverageMeter
 from utils import Logger
@@ -25,7 +25,8 @@ from setup import cfg
 parser = argparse.ArgumentParser(description='Test image model with 5-way classification')
 
 # Datasets
-parser.add_argument('--dataset', type=str, default='StanfordDogs', choices=['CUB_200_2011', 'StanfordDogs', 'StanfordCars', 'Cell', 'xray'])
+parser.add_argument('--dataset', type=str, default='xray',
+                    choices=['CUB_200_2011', 'StanfordDogs', 'StanfordCars', 'xray'])
 parser.add_argument('--model', default='', type=str,
                     help='C for ConvNet, R for ResNet')
 parser.add_argument('--workers', default=6, type=int,
@@ -68,8 +69,6 @@ parser.add_argument('--weight_local', type=float, default=0.5)
 # ************************************************************
 parser.add_argument("--patch_size", default=16, help="")
 
-
-
 # ************************************************************
 # prompt
 # ************************************************************
@@ -79,14 +78,14 @@ args = parser.parse_args()
 
 
 def main():
-    np.random.seed(args.seed)  # 设置随机种子
-    torch.manual_seed(args.seed)  # 设置PyTorch随机种子
-    use_gpu = torch.cuda.is_available()  # 检查是否有GPU可用
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    use_gpu = torch.cuda.is_available()
     args.save_dir = osp.join(args.save_dir, args.dataset, args.model,
                              str(args.nKnovel) + '_way' + str(args.nExemplars) + '_shot'
-                                 '_global_' + str(args.weight_global) + '_local_' + str(args.weight_local))  # 设置保存目录
-    # args.resume = osp.join(args.save_dir, 'pre_src/best_model.pth.tar')  # 设置恢复训练的模型路径
-    sys.stdout = Logger(osp.join(args.save_dir, 'log_test.txt'))  # 设置输出日志文件
+                                                                                 '_global_' + str(
+                                 args.weight_global) + '_local_' + str(args.weight_local))
+    sys.stdout = Logger(osp.join(args.save_dir, 'log_test.txt'))
 
     print("==========\nArgs:{}\n==========".format(args))
 
@@ -97,26 +96,24 @@ def main():
         cudnn.deterministic = True
     else:
         print("Currently using CPU (GPU is highly recommended)")
-        
+
     print('Initializing image data manager')
     dm = DataManager(args, use_gpu)
     trainloader, testloader = dm.return_dataloaders()
 
-    # model = Model(num_classes=args.num_classes, backbone=args.model)
-    model = ViT(cfg=cfg, load_pretrain=False, vis=True)  # 构建vit框架并加载预训练模型
+    model = ViT(cfg=cfg, load_pretrain=False, vis=True)
     # load the model
     checkpoint = torch.load(args.resume)
     model.load_state_dict(checkpoint['state_dict'])
     print("Loaded checkpoint from '{}'".format(args.resume))
     print(f"Accuracy from checkpoint: {checkpoint['acc']}")
     tm = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-    print('[{}]  {}'.format(tm,'Testing'))
+    print('[{}]  {}'.format(tm, 'Testing'))
 
     if use_gpu:
         model = model.cuda()
 
     test(model, testloader, use_gpu)
-
 
 
 def test(model, testloader, use_gpu):
@@ -125,8 +122,7 @@ def test(model, testloader, use_gpu):
     model.eval()
 
     with torch.no_grad():
-        for batch_idx , (images_train, labels_train, images_test, labels_test) in enumerate(tqdm(testloader)):
-            # print(batch_idx)
+        for batch_idx, (images_train, labels_train, images_test, labels_test) in enumerate(tqdm(testloader)):
             if use_gpu:
                 images_train = images_train.cuda()
                 images_test = images_test.cuda()
@@ -134,37 +130,21 @@ def test(model, testloader, use_gpu):
             batch_size, num_train_examples, channels, height, width = images_train.size()
             num_test_examples = images_test.size(1)
 
-
             labels_train_1hot = one_hot(labels_train).cuda()
             labels_test_1hot = one_hot(labels_test).cuda()
 
-            # s1 = model(images_train, images_test, labels_train_1hot, labels_test_1hot)
             trainer = Trainer()
-            s1 = trainer.tester(model, images_train, labels_train_1hot, images_test, labels_test_1hot, labels_train, labels_test, args, batch_num=batch_idx)  # 进行模型推理
+            s1 = trainer.tester(model, images_train, labels_train_1hot, images_test, labels_test_1hot, labels_train,
+                                labels_test, args, batch_num=batch_idx)
             s1 = s1.view(batch_size * num_test_examples, -1)
             labels_test = labels_test.view(batch_size * num_test_examples)
 
-           
             _, preds = torch.max(s1.detach().cpu(), 1)
-
-            # for i in range(len(preds)):
-            #     if preds[i] != labels_test[i]:
-            #         print(f"样本索引 {i} 预测错误, pred={preds[i].item()}, label={labels_test[i].item()}")
-            #     else:
-            #         print(f"样本索引 {i} 预测正确")
-
-            # with open("txt/results5.txt", "w", encoding="utf-8") as f:
-            #     for i in range(len(preds)):
-            #         if preds[i] != labels_test[i]:
-            #             f.write(f"样本索引 {i} 预测错误, pred={preds[i].item()}, label={labels_test[i].item()}\n")
-            #         else:
-            #             f.write(f"样本索引 {i} 预测正确\n")
-
             acc = (torch.sum(preds == labels_test.detach().cpu()).float()) / labels_test.size(0)
             accs.update(acc.item(), labels_test.size(0))
 
             gt = (preds == labels_test.detach().cpu()).float()
-            gt = gt.view(batch_size, num_test_examples).numpy() 
+            gt = gt.view(batch_size, num_test_examples).numpy()
             acc = np.sum(gt, 1) / num_test_examples
             acc = np.reshape(acc, (batch_size))
             test_accuracies.append(acc)
@@ -176,7 +156,6 @@ def test(model, testloader, use_gpu):
     ci95 = 1.96 * stds / np.sqrt(args.epoch_size)
     tm = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
     print('[{}] Accuracy: {:.2%}, std: {:.2%}'.format(tm, accuracy, ci95))
-
 
     return accuracy
 

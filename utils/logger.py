@@ -37,7 +37,7 @@ class Logger(object):
         self.console.flush()
         if self.file is not None:
             self.file.flush()
-            os.fsync(self.file.fileno())   ###os.fsync() 方法强制将文件描述符为fd的文件写入硬盘
+            os.fsync(self.file.fileno())
 
     def close(self):
         self.console.close()

@@ -5,7 +5,6 @@ from __future__ import print_function
 from .CUB import CUB_200_2011
 from .Dogs import StanfordDogs
 from .Cars import StanfordCars
-from .Cell import Cell
 from .xray import xray
 
 
@@ -13,7 +12,6 @@ __imgfewshot_factory = {
         'CUB_200_2011': CUB_200_2011,
         'StanfordDogs': StanfordDogs,
         'StanfordCars': StanfordCars,
-        'Cell': Cell,
         'xray': xray
 }
 

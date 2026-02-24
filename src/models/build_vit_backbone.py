@@ -45,22 +45,22 @@ MODEL_ZOO = {
 def build_mae_model(
     model_type, crop_size, prompt_cfg, model_root, adapter_cfg=None
 ):
-    if prompt_cfg is not None:  # 如果存在prompt配置
-        model = prompt_mae_vit_model(model_type, prompt_cfg)  # 构建prompt MAE ViT模型
-    elif adapter_cfg is not None:  # 如果存在adapter配置
-        model = adapter_mae_vit_model(model_type, adapter_cfg)  # 构建adapter MAE ViT模型
-    else:  # 否则
-        model = mae_vit_model(model_type)  # 构建普通的MAE ViT模型
-    out_dim = model.embed_dim  # 获取输出维度
+    if prompt_cfg is not None:
+        model = prompt_mae_vit_model(model_type, prompt_cfg)
+    elif adapter_cfg is not None:
+        model = adapter_mae_vit_model(model_type, adapter_cfg)
+    else:
+        model = mae_vit_model(model_type)
+    out_dim = model.embed_dim
 
-    ckpt = os.path.join(model_root, MODEL_ZOO[model_type])  # 获取模型的checkpoint路径
-    checkpoint = torch.load(ckpt, map_location="cpu")  # 加载模型checkpoint
-    state_dict = checkpoint['model']  # 获取模型的状态字典
+    ckpt = os.path.join(model_root, MODEL_ZOO[model_type])
+    checkpoint = torch.load(ckpt, map_location="cpu")
+    state_dict = checkpoint['model']
 
-    model.load_state_dict(state_dict, strict=False)  # 加载模型的状态字典到模型中，允许部分参数不严格匹配
-    model.head = torch.nn.Identity()  # 将模型的头部设置为Identity，即不进行任何操作
+    model.load_state_dict(state_dict, strict=False)
+    model.head = torch.nn.Identity()
 
-    return model, out_dim  # 返回模型和输出维度
+    return model, out_dim
 
 
 

@@ -52,9 +52,9 @@ def write_json(data: Union[list, dict], outfile: str) -> None:
 
 def read_json(filename: str) -> Union[list, dict]:
     """读取JSON文件"""
-    with open(filename, "rb") as fin:  # 以二进制只读模式打开JSON文件
-        data = json.load(fin, encoding="utf-8")  # 使用utf-8编码加载JSON文件内容
-    return data  # 返回读取的JSON数据，可以是列表或字典类型
+    with open(filename, "rb") as fin:
+        data = json.load(fin, encoding="utf-8")
+    return data
 
 
 

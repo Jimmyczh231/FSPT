@@ -13,9 +13,7 @@ class xray(object):
     # 64 * 600 (train) + 16 * 600 (val) + 20 * 600 (test)
     """
 
-    # dataset_dir = '/home/10701006/Datasets/Fine_grained/CUB_200_2011'
     dataset_dir = 'xray'
-    # dataset_dir = 'D:\Datasets\Fine_grained\CUB_200_2011'
     def __init__(self):
         super(xray, self).__init__()
         self.train_dir = os.path.join(self.dataset_dir, 'train')

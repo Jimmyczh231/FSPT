@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def conv3x3(in_planes, out_planes, stride=1):
-    """3x3 卷积，带有 padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=False)
 
@@ -53,8 +52,8 @@ class ResNet(nn.Module):
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)  # blocks_num在resnet18 内是 [2,2,2,2]
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))  # 经过自适应平均池化下采样，输出的大小为1*1
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(self.nFeat, 1)
 
         # 构建每一层
@@ -63,10 +62,8 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
 
-        # 最终的特征维度
         self.nFeat = 512 * block.expansion
 
-        # 初始化权重
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -95,7 +92,7 @@ class ResNet(nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
-        x = self.maxpool(x)  # 通过3*3的最大池化
+        x = self.maxpool(x)
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
@@ -107,7 +104,3 @@ class ResNet(nn.Module):
 
         return x
 
-# def resnet18():
-    # ResNet18 的配置：每层包含 2 个 BasicBlock
-    # model = ResNet(BasicBlock, [2, 2, 2, 2], kernel=3)
-    # return model
